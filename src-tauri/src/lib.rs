@@ -1,5 +1,4 @@
-
-use notion::{Task, QueryResponse, PropertyValue, RollupValue, RollupProperty};
+use notion::{PropertyValue, QueryResponse, RollupProperty, RollupValue, Task};
 
 mod notion;
 
@@ -28,7 +27,10 @@ async fn fetch_tasks(token: String, database_id: String) -> Result<Vec<Task>, St
     });
 
     let res = client
-        .post(format!("https://api.notion.com/v1/databases/{}/query", database_id))
+        .post(format!(
+            "https://api.notion.com/v1/databases/{}/query",
+            database_id
+        ))
         .header("Authorization", format!("Bearer {}", token))
         .header("Notion-Version", "2022-06-28")
         .json(&query_body)
@@ -37,76 +39,100 @@ async fn fetch_tasks(token: String, database_id: String) -> Result<Vec<Task>, St
         .map_err(|e| e.to_string())?;
 
     if !res.status().is_success() {
-         let error_text = res.text().await.unwrap_or_default();
-         return Err(format!("Notion API Error: {}", error_text));
+        let error_text = res.text().await.unwrap_or_default();
+        return Err(format!("Notion API Error: {}", error_text));
     }
 
-    let query_res: QueryResponse = res.json().await.map_err(|e| e.to_string())?;
-    
-    let tasks: Vec<Task> = query_res.results.into_iter().map(|page| {
-        let title = match page.properties.get("Task Name") {
-            Some(PropertyValue::Title { title }) => title.first().map(|t| t.plain_text.clone()).unwrap_or_default(),
-            _ => "Untitled".to_string(),
-        };
+    let body_text = res.text().await.unwrap_or_default();
+    let query_res: QueryResponse = serde_json::from_str(&body_text).map_err(|e| {
+        let snippet: String = body_text.chars().take(500).collect();
+        format!("JSON Parse Error: {}. Snippet: {}", e, snippet)
+    })?;
 
-        let status = match page.properties.get("Checkbox") {
-             Some(PropertyValue::Checkbox { checkbox }) => if *checkbox { "Done".to_string() } else { "To Do".to_string() },
-             _ => "To Do".to_string(),
-        };
+    let tasks: Vec<Task> = query_res
+        .results
+        .into_iter()
+        .map(|page| {
+            let title = match page.properties.get("Task Name") {
+                Some(PropertyValue::Title { title }) => title
+                    .first()
+                    .map(|t| t.plain_text.clone())
+                    .unwrap_or_default(),
+                _ => "Untitled".to_string(),
+            };
 
-        let do_date = match page.properties.get("Date") {
-             Some(PropertyValue::Date { date }) => date.as_ref().map(|d| d.start.clone()),
-             _ => None,
-        };
+            let status = match page.properties.get("Checkbox") {
+                Some(PropertyValue::Checkbox { checkbox }) => {
+                    if *checkbox {
+                        "Done".to_string()
+                    } else {
+                        "To Do".to_string()
+                    }
+                }
+                _ => "To Do".to_string(),
+            };
 
-        // Handle Rollups (Strategy linked to Objective Name/Deadline)
-        // We assume the user has created 'Objective Name' and 'Objective Deadline' rollups
-        // derived from the 'Strategy' relation.
-        let objective_name = match page.properties.get("Objective Name") {
-             Some(PropertyValue::Rollup { rollup }) => {
-                 match rollup {
-                     Some(RollupValue::Array { array }) => {
-                         // Find the first Title
-                         array.iter().find_map(|p| {
-                             match p {
-                                 RollupProperty::Title { title } => title.first().map(|t| t.plain_text.clone()),
-                                 _ => None,
-                             }
-                         })
-                     },
-                     _ => None,
-                 }
-             },
-             _ => None,
-        };
+            let do_date = match page.properties.get("Date") {
+                Some(PropertyValue::Date { date }) => date.as_ref().map(|d| d.start.clone()),
+                _ => None,
+            };
 
-        let objective_deadline = match page.properties.get("Objective Deadline") {
-              Some(PropertyValue::Rollup { rollup }) => {
-                 match rollup {
-                     Some(RollupValue::Array { array }) => {
-                         // Find the first Date
-                         array.iter().find_map(|p| {
-                             match p {
-                                 RollupProperty::Date { date } => date.as_ref().map(|d| d.start.clone()),
-                                 _ => None,
-                             }
-                         })
-                     },
-                     _ => None,
-                 }
-             },
-             _ => None,
-        };
-        
-        Task {
-            id: page.id,
-            title,
-            status,
-            do_date,
-            objective_name,
-            objective_deadline,
-        }
-    }).collect();
+            // Handle Rollups (Strategy linked to Objective Name/Deadline)
+            // We assume the user has created 'Objective Name' and 'Objective Deadline' rollups
+            // derived from the 'Strategy' relation.
+            let objective_name = match page.properties.get("Objective Name") {
+                Some(PropertyValue::Rollup { rollup }) => {
+                    match rollup {
+                        Some(RollupValue::Array { array }) => {
+                            // Find the first Title
+                            array.iter().find_map(|p| match p {
+                                RollupProperty::Title { title } => {
+                                    title.first().map(|t| t.plain_text.clone())
+                                }
+                                _ => None,
+                            })
+                        }
+                        _ => None,
+                    }
+                }
+                _ => None,
+            };
+
+            let objective_deadline = match page.properties.get("Objective Deadline") {
+                Some(PropertyValue::Rollup { rollup }) => {
+                    match rollup {
+                        Some(RollupValue::Array { array }) => {
+                            // Find the first Date, either directly or via Formula
+                            array.iter().find_map(|p| match p {
+                                RollupProperty::Date { date } => {
+                                    date.as_ref().map(|d| d.start.clone())
+                                }
+                                RollupProperty::Formula { formula } => match formula {
+                                    notion::FormulaValue::Date { date } => {
+                                        date.as_ref().map(|d| d.start.clone())
+                                    }
+                                    _ => None,
+                                },
+                                _ => None,
+                            })
+                        }
+                        Some(RollupValue::Date { date }) => date.as_ref().map(|d| d.start.clone()),
+                        _ => None,
+                    }
+                }
+                _ => None,
+            };
+
+            Task {
+                id: page.id,
+                title,
+                status,
+                do_date,
+                objective_name,
+                objective_deadline,
+            }
+        })
+        .collect();
 
     Ok(tasks)
 }
@@ -114,7 +140,7 @@ async fn fetch_tasks(token: String, database_id: String) -> Result<Vec<Task>, St
 #[tauri::command]
 async fn mark_task_complete(token: String, page_id: String, completed: bool) -> Result<(), String> {
     let client = reqwest::Client::new();
-    
+
     let body = serde_json::json!({
         "properties": {
              "Checkbox": {
@@ -133,8 +159,8 @@ async fn mark_task_complete(token: String, page_id: String, completed: bool) -> 
         .map_err(|e| e.to_string())?;
 
     if !res.status().is_success() {
-         let error_text = res.text().await.unwrap_or_default();
-         return Err(format!("Notion API Error: {}", error_text));
+        let error_text = res.text().await.unwrap_or_default();
+        return Err(format!("Notion API Error: {}", error_text));
     }
 
     Ok(())
@@ -146,7 +172,7 @@ pub fn run() {
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-            
+
             use tauri::tray::{TrayIconBuilder, TrayIconEvent};
             use tauri::Manager;
 
@@ -162,7 +188,7 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
-                
+
             Ok(())
         })
         .plugin(tauri_plugin_store::Builder::new().build())

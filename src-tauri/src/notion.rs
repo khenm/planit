@@ -27,10 +27,18 @@ pub struct Page {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum PropertyValue {
-    Title { title: Vec<RichText> },
-    Date { date: Option<DateValue> },
-    Checkbox { checkbox: bool },
-    Rollup { rollup: Option<RollupValue> },
+    Title {
+        title: Vec<RichText>,
+    },
+    Date {
+        date: Option<DateValue>,
+    },
+    Checkbox {
+        checkbox: bool,
+    },
+    Rollup {
+        rollup: Option<RollupValue>,
+    },
     // Fallback for others
     #[serde(other)]
     Unknown,
@@ -49,7 +57,12 @@ pub struct DateValue {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RollupValue {
-    Array { array: Vec<RollupProperty> },
+    Array {
+        array: Vec<RollupProperty>,
+    },
+    Date {
+        date: Option<DateValue>,
+    },
     #[serde(other)]
     Unknown,
 }
@@ -60,9 +73,26 @@ pub enum RollupValue {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RollupProperty {
-    Title { title: Vec<RichText> },
-    Date { date: Option<DateValue> },
+    Title {
+        title: Vec<RichText>,
+    },
+    Date {
+        date: Option<DateValue>,
+    },
+    Formula {
+        formula: FormulaValue,
+    },
     // Fallback
+    #[serde(other)]
+    Unknown,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum FormulaValue {
+    Date {
+        date: Option<DateValue>,
+    },
     #[serde(other)]
     Unknown,
 }
