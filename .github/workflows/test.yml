@@ -1,0 +1,41 @@
+name: Test & Build
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  check-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Check Code Formatting (Rust)
+        run: cargo fmt --all -- --check
+        working-directory: src-tauri
+
+      - name: Check Code Quality (Clippy)
+        run: cargo clippy -- -D warnings
+        working-directory: src-tauri
+
+      - name: Build (Debug)
+        run: npm run tauri build -- --debug
