@@ -4,8 +4,8 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Tauri](https://img.shields.io/badge/built%20with-Tauri-orange)
-[![Test & Build](https://github.com/yourusername/planit/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/planit/actions/workflows/test.yml)
-[![Release](https://github.com/yourusername/planit/actions/workflows/release.yml/badge.svg)](https://github.com/yourusername/planit/actions/workflows/release.yml)
+[![Test & Build](https://github.com/phuongoliver/planit/actions/workflows/test.yml/badge.svg)](https://github.com/phuongoliver/planit/actions/workflows/test.yml)
+[![Release](https://github.com/phuongoliver/planit/actions/workflows/release.yml/badge.svg)](https://github.com/phuongoliver/planit/actions/workflows/release.yml)
 
 ## ✨ Features
 
