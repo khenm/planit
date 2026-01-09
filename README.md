@@ -19,6 +19,11 @@
 
 You can download the latest version of PlanIt from our **[Releases Page](https://github.com/phuongoliver/planit/releases)**.
 
+If you use MacOS and see a message saying "App is damaged and can't be opened", run this command in your terminal to allow the app to run: 
+```bash
+xattr -cr /Applications/PlanIt.app
+```
+
 ## 🌟 How to Use? 
 
 To use PlanIt, you need to connect it to your Notion workspace and follow [this template](https://topaz-enthusiasm-fb5.notion.site/PlanIt-Plan-Template-9eb32f6a62768376ac1481e62890b6ae?source=copy_link):
