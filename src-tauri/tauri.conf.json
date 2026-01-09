@@ -16,7 +16,11 @@
         "width": 360,
         "height": 520,
         "resizable": true,
-        "maximizable": false
+        "maximizable": false,
+        "transparent": true,
+        "decorations": false,
+        "shadow": true,
+        "dragDropEnabled": true
       }
     ],
     "security": {
