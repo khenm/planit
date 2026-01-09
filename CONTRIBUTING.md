@@ -2,50 +2,59 @@
 
 First off, thanks for taking the time to contribute! 🎉
 
-The following is a set of guidelines for contributing to PlanIt. These are mostly guidelines, not rules. Use your best judgment and feel free to propose changes to this document in a pull request.
+We want to make PlanIt the best desktop companion for Notion users. Whether you're fixing a bug, improving the docs, or adding a new feature, your help is welcome.
 
-## How Can I Contribute?
+## 📂 Project Structure
 
-### Reporting Bugs
+PlanIt is a [Tauri](https://tauri.app/) application, meaning it has two distinct parts:
 
-This section guides you through submitting a bug report for PlanIt. Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
+- **Frontend (`/src`)**: A React application built with Vite and TypeScript.
+  - `src/components`: Reusable UI components (TaskCard, Settings, etc.).
+  - `src/App.tsx`: The main entry point and layout.
+  - `src/index.css`: Global styles and Tailwind directives.
 
-- **Use a clear and descriptive title** for the issue to identify the problem.
-- **Describe the exact steps which reproduce the problem** in as many details as possible.
-- **Provide specific examples** to demonstrate the steps. Include copy/pasteable snippets.
+- **Backend (`/src-tauri`)**: The Rust core that handles system interactions and data syncing.
+  - `src-tauri/src/main.rs`: The entry point for the Rust backend.
+  - `src-tauri/src/lib.rs`: Shared library logic.
+  - `src-tauri/tauri.conf.json`: Tauri configuration (windows, icons, permissions).
 
-### Suggesting Enhancements
+## 🎨 Code Style
 
-This section guides you through submitting an enhancement suggestion for PlanIt, including completely new features and minor improvements to existing functionality.
+We enforce code style to keep the codebase clean and consistent.
 
-- **Use a clear and descriptive title** for the issue to identify the suggestion.
-- **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
-- **Explain why this enhancement would be useful** to most PlanIt users.
+### Frontend (React/TypeScript)
+- We use **Prettier** for formatting.
+- Please run `npm run format` (if available) or ensure your editor is configured to format on save.
+- Naming: PascalCase for components (`TaskCard.tsx`), camelCase for functions/vars.
 
-### Pull Requests
+### Backend (Rust)
+- We use **cargo fmt**.
+- **Must** run `cargo fmt` inside `src-tauri/` before committing.
+- Follow standard Rust conventions (snake_case for variables/functions).
 
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
+## 🛠 Workflow & Pull Requests
 
-## Styleguides
+1. **Fork** the repository.
+2. **Clone** your fork locally.
+3. **Create a Branch** for your change:
+   ```bash
+   git checkout -b feature/my-new-feature
+   # or
+   git checkout -b fix/issue-description
+   ```
+4. **Make sure it builds**:
+   - Frontend: `npm run dev`
+   - Backend: `npm run tauri dev`
+5. **Commit** your changes with meaningful messages:
+   - ✅ Good: "Fix task date parsing error in TaskCard"
+   - ❌ Bad: "fix bug"
+6. **Push** to your fork and open a **Pull Request**.
 
-### Git Commit Messages
+## 🐛 Reporting Bugs & Features
 
-- Use the present tense ("Add feature" not "Added feature")
-- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Limit the first line to 72 characters or less
-- Reference issues and pull requests liberally after the first line
+We use GitHub Issues to track bugs and features.
+- Check if the issue already exists.
+- Use the **Bug Report** template for bugs.
+- Use the **Feature Request** template for new ideas.
 
-### TypeScript / React
-
-- Use Functional Components with Hooks.
-- Prefer interfaces over types for object definitions.
-- Use explicit return types for functions.
-
-### Rust
-
-- Follow standard Rust naming conventions (snake_case for variables/functions, CamelCase for structs/enums).
-- Run `cargo fmt` before committing.
+Happy Coding! 🚀
