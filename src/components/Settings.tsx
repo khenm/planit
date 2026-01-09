@@ -160,6 +160,7 @@ export function SettingsPage({ onSave }: { readonly onSave: () => void }) {
                 <Layout className="w-4 h-4" />
                 <span className="text-sm">Always on Top</span>
               </button>
+              {/* TODO(good-first-issue): Add a tooltip explaining what "Always on Top" does. */}
             </div>
           </div>
         </section>

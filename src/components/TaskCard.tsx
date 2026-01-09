@@ -44,7 +44,7 @@ export function TaskCard({ task, index, onComplete, notionToken }: TaskCardProps
         const m = Math.floor((diffMs % 3600000) / 60000);
         const s = Math.floor((diffMs % 60000) / 1000);
         return { str: `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`, status };
-      } else if (diffHrs < 72) { // Show hours if < 3 days
+      } else if (diffHrs < 72) { // TODO(good-first-issue): Extract '72' (3 days) into a named constant.
         return { str: `${diffHrs}h`, status };
       } else {
         const days = Math.floor(diffHrs / 24);
@@ -133,6 +133,7 @@ export function TaskCard({ task, index, onComplete, notionToken }: TaskCardProps
 
         {/* Bottom Row: Objective / Context (Italicized) */}
         {(task.objective_name || task.objective_deadline) && (
+          // TODO(good-first-issue): Replace hardcoded hex color '#5f7c8c' with a Tailwind class or theme variable.
           <div className="pl-6 text-[10px] sm:text-xs text-[#5f7c8c] italic flex items-center justify-between gap-2">
             <span className="truncate flex-1">{task.objective_name}</span>
             <div className="flex items-center gap-2 font-mono shrink-0">
