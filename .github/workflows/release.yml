@@ -4,7 +4,7 @@ on:
     tags:
       - 'v*'
   workflow_run:
-    workflows: ["Test & Build"]
+    workflows: ["Test Suite"]
     branches: [main]
     types: 
       - completed
