@@ -1,12 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* Default font settings if Inter is linked */
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
+  :root {
+    --brand-primary: #5f7c8c;
+    /* Muted Blue-Grey */
+    --brand-secondary: #f0f4f8;
+    /* Soft Light Grey */
+    --brand-dark: #1a1e23;
+    /* Deep Charcoal */
+    --brand-gray: #94a3b8;
+    --brand-bg-dark: #121212;
+  }
+
+  body {
+    @apply antialiased text-brand-dark bg-white;
+  }
+
+  .dark body {
+    @apply bg-brand-dark text-white;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-gray/30 rounded-full hover:bg-brand-gray/50 transition-colors;
+}
+
+/* Glassmorphism */
+.glass {
+  @apply bg-white/70 dark:bg-brand-dark/70 backdrop-blur-lg border border-white/20 dark:border-white/10;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Extra small breakpoint simulation since tailwind default xs is not standard */
+@media (min-width: 380px) {
+  .xs\:block {
+    display: block;
+  }
+
+  .xs\:inline {
+    display: inline;
+  }
+}
+
+@media (max-width: 379px) {
+  .xs\:block {
+    display: none;
+  }
+
+  .xs\:inline {
+    display: none;
   }
 }
