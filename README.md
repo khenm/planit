@@ -42,7 +42,7 @@
 
 ## ⚙️ Configuration
 
-To use PlanIt, you need to connect it to your Notion workspace:
+To use PlanIt, you need to connect it to your Notion workspace and follow [this template](https://topaz-enthusiasm-fb5.notion.site/PlanIt-Plan-Template-9eb32f6a62768376ac1481e62890b6ae?source=copy_link):
 
 1. **Create a Notion Integration**:
    - Go to [Notion My Integrations](https://www.notion.so/my-integrations).
