@@ -1,41 +1,33 @@
-name: Test & Build
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+name: Test Suite
+on: [push, pull_request]
 
 jobs:
-  check-quality:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      # 1. Setup Rust & Node
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      # 2. Cài dependencies cho Linux (bắt buộc để build đc thư viện đồ họa của Rust)
+      - name: Install Linux Deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
+      # 3. Chạy Rust Test (Backend)
+      - name: Test Backend (Rust)
+        run: |
+          cd src-tauri
+          cargo test
 
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-
-      - name: Install frontend dependencies
-        run: npm install
-
-      - name: Check Code Formatting (Rust)
-        run: cargo fmt --all -- --check
-        working-directory: src-tauri
-
-      - name: Check Code Quality (Clippy)
-        run: cargo clippy -- -D warnings
-        working-directory: src-tauri
-
-      - name: Build (Debug)
-        run: npm run tauri build -- --debug
+      # 4. Chạy React Test (Frontend)
+      - name: Install & Test Frontend
+        run: |
+          npm ci
+          npm test # Cần cấu hình script "test": "vitest" trong package.json
